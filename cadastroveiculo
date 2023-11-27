@@ -1,0 +1,170 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CadastroVeiculoGUI extends JFrame {
+
+    private JTextField campoPlaca, campoMarca, campoModelo, campoCor, campoAno, campoGrupo;
+    private static final String ARQUIVO_CSV = "frota_veiculos.csv";
+
+    public CadastroVeiculoGUI() {
+        super("Cadastro de Novo Veículo");
+
+        // Configurações da janela
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 500);
+        setLocationRelativeTo(null);
+
+        // Criar painel
+        JPanel painel = new JPanel(new GridLayout(7, 2));
+
+        // Adicionar componentes ao painel
+        painel.add(new JLabel("Placa:"));
+        campoPlaca = new JTextField();
+        painel.add(campoPlaca);
+
+        painel.add(new JLabel("Marca:"));
+        campoMarca = new JTextField();
+        painel.add(campoMarca);
+
+        painel.add(new JLabel("Modelo:"));
+        campoModelo = new JTextField();
+        painel.add(campoModelo);
+
+        painel.add(new JLabel("Cor:"));
+        campoCor = new JTextField();
+        painel.add(campoCor);
+
+        painel.add(new JLabel("Ano:"));
+        campoAno = new JTextField();
+        painel.add(campoAno);
+
+        painel.add(new JLabel("Grupo:"));
+        campoGrupo = new JTextField();
+        painel.add(campoGrupo);
+
+        JButton btnConfirmar = new JButton("Confirmar");
+        btnConfirmar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cadastrarVeiculo();
+            }
+        });
+        painel.add(btnConfirmar);
+
+        JButton btnRemover = new JButton("Remover Veículo");
+        btnRemover.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removerVeiculo();
+            }
+        });
+        painel.add(btnRemover);
+
+        JButton btnRelatorios = new JButton("Gerar Relatórios");
+        btnRelatorios.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirJanelaRelatorios();
+            }
+        });
+        painel.add(btnRelatorios);
+
+        // Adicionar painel à janela
+        add(painel);
+
+        // Tornar a janela visível
+        setVisible(true);
+    }
+
+    private void cadastrarVeiculo() {
+        // Obter os dados inseridos
+        String placa = campoPlaca.getText();
+        String marca = campoMarca.getText();
+        String modelo = campoModelo.getText();
+        String cor = campoCor.getText();
+        String ano = campoAno.getText();
+        String grupo = campoGrupo.getText();
+
+        // Validar os dados
+        if (placa.isEmpty() || marca.isEmpty() || modelo.isEmpty() || cor.isEmpty() || ano.isEmpty() || grupo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Simular a verificação da placa
+        // Aqui você deve adicionar a lógica real de verificação no seu sistema
+        if (placaExistente(placa)) {
+            JOptionPane.showMessageDialog(this, "Veículo com esta placa já cadastrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Adicionar o veículo à frota (simulado)
+        // Aqui você deve adicionar a lógica real de persistência no seu sistema
+        adicionarVeiculo(placa, marca, modelo, cor, ano, grupo);
+
+        JOptionPane.showMessageDialog(this, "Veículo cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private boolean placaExistente(String placa) {
+        // Simular a verificação se a placa já existe
+        List<String> veiculos = lerDadosDoArquivo(ARQUIVO_CSV);
+        for (String linha : veiculos) {
+            String[] dados = linha.split(",");
+            if (dados.length > 0 && dados[0].equals(placa)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void adicionarVeiculo(String placa, String marca, String modelo, String cor, String ano, String grupo) {
+        // Simular a adição do veículo à frota
+        try (PrintWriter writer = new PrintWriter(new FileWriter(ARQUIVO_CSV, true))) {
+            writer.println(placa + "," + marca + "," + modelo + "," + cor + "," + ano + "," + grupo);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao adicionar veículo.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removerVeiculo() {
+        // ... (método existente)
+    }
+
+    private void abrirJanelaRelatorios() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new RelatoriosGUI();
+            }
+        });
+    }
+
+    private List<String> lerDadosDoArquivo(String nomeArquivo) {
+        List<String> dados = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(nomeArquivo))) {
+            String linha;
+            while ((linha = reader.readLine()) != null) {
+                dados.add(linha);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao ler dados do arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+        return dados;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new CadastroVeiculoGUI();
+            }
+        });
+    }
+}
